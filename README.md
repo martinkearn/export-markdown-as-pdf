@@ -3,7 +3,7 @@ Shell script which exports a series of markdown files as a single Markdown file 
 
 If the folder contains an `.order` file, the script will compose the export in that order. Otherwise it will use the file system order.
 
-## Prequisites
+## Setup
 bash — Script is written for bash, standard on macOS/Linux.
 
 pandoc — Required to convert the combined Markdown file to PDF.
