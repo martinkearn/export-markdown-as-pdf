@@ -8,29 +8,31 @@ order_file=".order"
 rm -f "$output" "$pdf_output"
 
 # Check if the file exists
-if [ ! -f "$order_file" ]; then
-    echo "File not found!"
-    exit 1
+if [ -f "$order_file" ]; then
+    echo "Using .order file for ordering."
+    file_list=$(cat "$order_file" | tr -d '\r')
+else
+    echo ".order file not found. Using filesystem order."
+    file_list=$(ls *.md | sed 's/\.md$//')
 fi
 
-while IFS= read -r line || [ -n "$line" ]; do
-  line=$(echo "$line" | tr -d '\r')
-  md_file="${line}.md"
-  if [ -f "$md_file" ]; then
-    echo -e "\n\n# ${line}\n" >> "$output"
-    echo "Adding: $md_file"
-    cat "$md_file" >> "$output"
-    echo -e "\n\n" >> "$output"  # Add spacing between files
-  else
-    echo "Warning: File '$md_file' not found."
-  fi
-done < "$order_file"
+for line in $file_list; do
+    md_file="${line}.md"
+    if [ -f "$md_file" ]; then
+        echo -e "\n\n# ${line}\n" >> "$output"
+        echo "Adding: $md_file"
+        cat "$md_file" >> "$output"
+        echo -e "\n\n" >> "$output"  # Add spacing between files
+    else
+        echo "Warning: File '$md_file' not found."
+    fi
+done
 
 # Export to PDF using pandoc
 if command -v pandoc > /dev/null; then
-  echo "Generating PDF..."
-  pandoc "$output" -o "$pdf_output"
-  echo "PDF created at $pdf_output"
+    echo "Generating PDF..."
+    pandoc "$output" -o "$pdf_output"
+    echo "PDF created at $pdf_output"
 else
-  echo "Pandoc is not installed. Skipping PDF generation."
+    echo "Pandoc is not installed. Skipping PDF generation."
 fi
